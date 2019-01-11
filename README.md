@@ -128,6 +128,95 @@ go get github.com/Agent-Plus/gocqlmock
 
 ## Use
 
+Once session interface was used in the project let's replace gocql with mock in the test.
+Create fake structs which will implement gocqlmock Session, Query, Iter.
+
+``` go
+import (
+	"github.com/Agent-Plus/gocqlmock"
+	"testing"
+)
+
+type MockSession struct {
+	*gocqlmock.Session
+}
+
+type MockQuery struct {
+	*gocqlmock.Query
+}
+
+type MockIter struct {
+	*gocqlmock.Iter
+}
+
+func (s MockSession) Query(query string, args ...interface{}) dbapi.QueryInterface {
+	return &MockQuery{s.Session.Query(query, args...)}
+}
+
+func (q MockQuery) Iter() dbapi.IterInterface {
+	return &MockIter{q.Query.Iter()}
+}
+
+func (q MockQuery) Exec() error {
+	return q.Query.Exec()
+}
+```
+
+Test some handler
+
+``` go
+func TestGetUsers(t *testing.T) {
+	testSession := &MockSession{gocqlmock.New(t)}
+	testSession.ExpectQuery("SELECT.+FROM users").
+		ExpectIter().
+		WithResult(
+			gocqlmock.NewRows().
+				AddRow(int64(1)),
+		)
+
+	router := Server(testSession)
+	w := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/users", nil)
+	router.ServeHTTP(w, req)
+
+	if w.Code != 200 {
+        t.Error("expecgted response code 200")
+    }
+}
+```
+
+### Expectations
+
+|                | Description                                              |
+| :------------- | :------------------------------------------------------- |
+| ExpectQuery    | Expected Query(...) call, will check query or arguments passed to the function Query(...)
+| ExpectScan     | Expected Query(...).Scan(...) call, this expectation will deliver fake row to the arguments passed through Scan(...) |
+| ExpectIter     | Expected Query(...).Iter().Scan(...) call, this expectation will deliver fake rows to the arguments passed through Scan(...) |
+| ExpectExec     | Expected Query(...).Exec() call |
+
+### Row data
+
+To create fake rows use WithResult, which follows with ExpectScan and ExpectQuery
+
+``` go
+	testSession.ExpectQuery("SELECT").
+		ExpectIter().
+		WithResult(
+			gocqlmock.NewRows().
+				AddRow(int64(1), "Foo", nil, 0, "8100000000", "foo@localhost").
+				AddRow(int64(5), "Foo5", &AntStruct{Text: "F", BgColor: "#fff"}, 1, "8100000000", "foo5@localhost"),
+		)
+```
+
+``` go
+	testSession.ExpectQuery("SELECT.+WHERE.+id").
+		ExpectScan().
+		WithResult(
+			gocqlmock.NewRows().
+				AddRow(1),
+		)
+```
+
 ## Thanks
 
 Thanks to [DATA-DOG](https://github.com/DATA-DOG) for the [go-sqlmock](https://github.com/DATA-DOG/go-sqlmock) taken as idea for this 
