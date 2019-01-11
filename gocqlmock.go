@@ -72,7 +72,7 @@ func (m *Session) ExpectQuery(queryRegex string) *Session {
 func (m *Session) ExpectScan() *Session {
 	_, ok := m.active.(*expectQuery)
 	if !ok {
-		m.NewError("scan may be expected only with query based expectations, current is %T", m.active)
+		m.printErr("scan may be expected only with query based expectations, current is %T", m.active)
 		return m
 	}
 
@@ -87,7 +87,7 @@ func (m *Session) ExpectScan() *Session {
 func (m *Session) ExpectIter() *Session {
 	_, ok := m.active.(*expectQuery)
 	if !ok {
-		m.NewError("iter may be expected only with query based expectations, current is %T", m.active)
+		m.printErr("iter may be expected only with query based expectations, current is %T", m.active)
 		return m
 	}
 
@@ -101,7 +101,7 @@ func (m *Session) ExpectIter() *Session {
 func (m *Session) ExpectExec() *Session {
 	_, ok := m.active.(*expectQuery)
 	if !ok {
-		m.NewError("exec may be expected only with query based expectations, current is %T", m.active)
+		m.printErr("exec may be expected only with query based expectations, current is %T", m.active)
 		return m
 	}
 
@@ -119,7 +119,7 @@ func (m *Session) WithResult(r Rows) *Session {
 		ei, ok := m.active.(*expectIter)
 
 		if !ok {
-			m.NewError("rows may be returned only by scan or iter expectations, current is %T", m.active)
+			m.printErr("rows may be returned only by scan or iter expectations, current is %T", m.active)
 		}
 
 		ei.rows = r.(*rows)
@@ -141,7 +141,7 @@ func (m *Session) WithArgs(args ...interface{}) *Session {
 	if !ok {
 		ex, ok := m.active.(*expectExec)
 		if !ok {
-			m.NewError("arguments may be expected only with query based expectations, current is %T", m.active)
+			m.printErr("arguments may be expected only with query based expectations, current is %T", m.active)
 		}
 		ex.args = args
 	} else {
