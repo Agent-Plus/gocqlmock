@@ -123,7 +123,7 @@ func NewConnection(hosts []string, keyspace string) (SessionInterface, error) {
 ## Install
 
 ```
-go get github.com/agent-plus/gocqlmock
+go get github.com/Agent-Plus/gocqlmock
 ```
 
 ## Use
