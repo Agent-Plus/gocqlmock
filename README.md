@@ -130,4 +130,4 @@ go get github.com/agent-plus/gocqlmock
 
 ## Thanks
 
-Thanks to DATA-DOG for the go-sqlmock taken as idea for this 
+Thanks to [DATA-DOG](https://github.com/DATA-DOG) for the [go-sqlmock](https://github.com/DATA-DOG/go-sqlmock) taken as idea for this 
