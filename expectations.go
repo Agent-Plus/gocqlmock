@@ -157,7 +157,7 @@ func assignValue(dst, src interface{}) error {
 		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
 		reflect.String:
 		di.Set(si)
-	case reflect.Struct, reflect.Slice:
+	case reflect.Struct, reflect.Slice, reflect.Array:
 		if si.IsValid() && si.Type().AssignableTo(di.Type()) {
 			switch src.(type) {
 			case []byte:
