@@ -30,6 +30,10 @@ func (m Query) Exec() error {
 		return ex.err
 	}
 
+	if err := argsMatch(m.args, ex.args); err != nil {
+		return err
+	}
+
 	return nil
 }
 

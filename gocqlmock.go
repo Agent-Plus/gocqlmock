@@ -131,11 +131,15 @@ func (m *Session) WithResult(r Rows) *Session {
 }
 
 // WithArgs expectation should be called with given arguments.
-// Works with Query expectations
+// Works with Query expectations and Exec expectation
 //
 // testSession.ExpectQuery("SELECT .+ FROM tb WHERE id").
 //     WithArgs(1).
 //     ExpectExec()
+//
+// testSession.ExpectQuery("UPDATE").
+//     ExpectExec().
+//     WithArgs(1)
 func (m *Session) WithArgs(args ...interface{}) *Session {
 	eq, ok := m.active.(*expectQuery)
 	if !ok {

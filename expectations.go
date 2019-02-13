@@ -199,8 +199,8 @@ func argsMatch(qargs, eargs interface{}) error {
 
 	errStr := "argument at %d expected %v, but got %v"
 	for i := 0; i < e.Len(); i++ {
-		vi := e.Index(i)
-		ei := a.Index(i)
+		vi := e.Index(i).Elem()
+		ei := a.Index(i).Elem()
 		switch vi.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			if vi.Int() != ei.Int() {
