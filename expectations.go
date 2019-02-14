@@ -158,15 +158,22 @@ func assignValue(dst, src interface{}) error {
 		reflect.String:
 		di.Set(si)
 	case reflect.Struct, reflect.Slice, reflect.Array:
-		if si.IsValid() && si.Type().AssignableTo(di.Type()) {
-			switch src.(type) {
-			case []byte:
-				di.SetBytes(si.Bytes())
-			default:
-				di.Set(si)
+		if si.IsValid() {
+			if di.Kind() == reflect.Ptr {
+				di.Set(reflect.New(di.Type().Elem()))
+				return assignValue(di.Interface(), si.Interface())
+			} else if si.Type().AssignableTo(di.Type()) {
+				switch src.(type) {
+				case []byte:
+					di.SetBytes(si.Bytes())
+				default:
+					di.Set(si)
+				}
+			} else {
+				return fmt.Errorf("can't set destination argument type %s with row data value type %s", di.Kind(), si.Kind())
 			}
 		} else {
-			return fmt.Errorf("can't set destination argument type %s with row data value type %s", di.Kind(), si.Kind())
+			return fmt.Errorf("can't set destination argument type %s with invalid row data %v", di.Kind(), si)
 		}
 
 	case reflect.Ptr:
@@ -201,6 +208,7 @@ func argsMatch(qargs, eargs interface{}) error {
 	for i := 0; i < e.Len(); i++ {
 		vi := e.Index(i).Elem()
 		ei := a.Index(i).Elem()
+
 		switch vi.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			if vi.Int() != ei.Int() {
@@ -222,6 +230,19 @@ func argsMatch(qargs, eargs interface{}) error {
 			// compare types like time.Time based on type only
 			if vi.Kind() != ei.Kind() {
 				return fmt.Errorf(errStr, i, ei.Kind(), vi.Kind())
+			}
+
+			if reflect.TypeOf(gocql.UUID{}).Name() == vi.Type().Name() {
+				rv := vi.MethodByName("Timestamp").Call([]reflect.Value{})
+				re := ei.MethodByName("Timestamp").Call([]reflect.Value{})
+
+				if lv, le := len(rv), len(re); lv != le && lv != 1 {
+					return fmt.Errorf(errStr, i, ei, vi)
+				} else {
+					if rv[0].Int() != re[0].Int() {
+						return fmt.Errorf(errStr, i, ei, vi)
+					}
+				}
 			}
 		}
 	}
