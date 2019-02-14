@@ -155,8 +155,9 @@ func (m *Session) WithArgs(args ...interface{}) *Session {
 }
 
 // WithError expectation will return error
-func (m *Session) WithError(args ...interface{}) {
+func (m *Session) WithError(args ...interface{}) *Session {
 	m.active.setError(args)
+	return m
 }
 
 // strip out new lines and trim spaces
