@@ -12,6 +12,12 @@ type Query struct {
 	query        string
 }
 
+// Bind
+func (q *Query) Bind(args ...interface{}) *Query {
+	q.args = args
+	return q
+}
+
 // Exec
 func (m Query) Exec() error {
 	e := m.expectations.next()
