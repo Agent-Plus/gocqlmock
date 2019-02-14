@@ -70,9 +70,15 @@ func (m *Session) ExpectQuery(queryRegex string) *Session {
 // ExpectScan Query(...).Scan(...) to be triggered, which will assign
 // values from the rows mock to the arguments passed through Scan(...)
 func (m *Session) ExpectScan() *Session {
-	_, ok := m.active.(*expectQuery)
+	var ok bool
+
+	_, ok = m.active.(*expectQuery)
 	if !ok {
-		m.printErr("scan may be expected only with query based expectations, current is %T", m.active)
+		_, ok = m.active.(*expectScan)
+	}
+
+	if !ok {
+		m.printErr("scan may be expected only with query or scan based expectations, current is %T", m.active)
 		return m
 	}
 
