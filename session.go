@@ -43,7 +43,7 @@ func (m Session) Query(query string, args ...interface{}) (q *Query) {
 	}
 
 	if err := argsMatch(args, eq.args); err != nil {
-		m.printErr(err.Error())
+		m.printErr("expection %T with args %+v, got args %+v: %s", e, eq.args, args, err.Error())
 	}
 
 	return

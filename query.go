@@ -37,7 +37,7 @@ func (m Query) Exec() error {
 	}
 
 	if err := argsMatch(m.args, ex.args); err != nil {
-		return err
+		return fmt.Errorf("expection %T with args %+v, got args %+v: %s", e, ex.args, m.args, err.Error())
 	}
 
 	return nil
