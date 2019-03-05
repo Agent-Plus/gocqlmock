@@ -7,6 +7,12 @@ import (
 	"regexp"
 )
 
+// Argument interface allows to match
+// any argument in specific way
+type Argument interface {
+	Match(interface{}) error
+}
+
 // expectIface represents compatibility interface for the
 // expectations
 type expectIface interface {
@@ -208,6 +214,14 @@ func argsMatch(qargs, eargs interface{}) error {
 	for i := 0; i < e.Len(); i++ {
 		vi := e.Index(i).Elem()
 		ei := a.Index(i).Elem()
+
+		if m, ok := vi.Interface().(Argument); ok {
+			if err := m.Match(ei.Interface()); err != nil {
+				return err
+			}
+
+			continue
+		}
 
 		switch vi.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
