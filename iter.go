@@ -36,3 +36,8 @@ func (i *Iter) Scan(dest ...interface{}) bool {
 
 	return true
 }
+
+// NumRows returns number of the rows
+func (i *Iter) NumRows() int {
+	return i.expectation.rowsLen()
+}

@@ -20,6 +20,7 @@ type expectIface interface {
 	setError([]interface{})
 	getError() error
 	scan(...interface{}) error
+	rowsLen() int
 }
 
 // expectationsIface is an interface to manage
@@ -115,6 +116,14 @@ func (e *expect) setError(args []interface{}) {
 // getError returns error
 func (e expect) getError() error {
 	return e.err
+}
+
+// rowsLen returns number of the rows from data cache
+func (e expect) rowsLen() int {
+	if e.rows != nil {
+		return len(e.rows.data)
+	}
+	return 0
 }
 
 // NewRows returns new mock storage for the rows data
